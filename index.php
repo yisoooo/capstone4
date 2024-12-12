@@ -1,6 +1,6 @@
 <?php
 
-require_once("inc/db.php");
+require_once("db.php");
 
 ?>
 <!DOCTYPE html>

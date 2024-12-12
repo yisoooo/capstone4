@@ -1,3 +1,43 @@
+<?php
+session_start();
+require_once("db.php");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'];
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $birthdate = $_POST['birthdate'];
+
+    // 사용자명 중복 확인
+    $sql = "SELECT * FROM members WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $error_message = "이미 존재하는 아이디입니다.";
+    } else {
+        // 사용자 정보 삽입
+        $sql = "INSERT INTO members (name, username, password, email, phone, birthdate) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssss", $name, $username, $password, $email, $phone, $birthdate);
+
+        if ($stmt->execute()) {
+            $_SESSION['username'] = $username;
+            header("Location: login.php"); // 회원가입 성공 시 리다이렉트
+            exit();
+        } else {
+            $error_message = "회원가입에 실패했습니다.";
+        }
+    }
+
+    $stmt->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -120,7 +160,10 @@
 
   <div class="signup-container">
     <h2>UCAR 회원가입</h2>
-    <form id="signupForm">
+    <?php if (isset($error_message)): ?>
+      <p style="color: red;"><?= $error_message ?></p>
+    <?php endif; ?>
+    <form id="signupForm" action="signup.php" method="post">
       <!-- 이름 -->
       <div class="input-group">
         <label for="name">이름</label>
@@ -177,29 +220,6 @@
       <p>이미 계정이 있으신가요? <a href="login.php">로그인</a></p>
     </div>
   </div>
-
-  <script>
-    // 아이디 중복 확인
-    document.getElementById('checkUsernameBtn').addEventListener('click', function() {
-      const username = document.getElementById('username').value;
-      const errorMessage = document.getElementById('usernameError');
-      
-      // 간단한 예시로, 아이디 중복을 "test"라는 아이디로 가정
-      if (username === "test") {
-        errorMessage.textContent = "이 아이디는 이미 사용 중입니다.";
-      } else {
-        errorMessage.textContent = "";
-        alert("사용 가능한 아이디입니다.");
-      }
-    });
-
-    // 가입하기 버튼 클릭 시 가입 완료 메시지 표시
-    document.getElementById('signupForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // 폼 기본 동작 방지
-      alert("가입이 완료되었습니다");
-      window.location.href = "login.php"; // index.html로 리다이렉트
-    });
-  </script>
 
 </body>
 </html>

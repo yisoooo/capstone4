@@ -139,7 +139,7 @@
     <a href="mypage.php">마이페이지</a>
   </div>
   <header>
-    <div class="logo"><a href="index.php" style="text-decoration: none; color: inherit;">UCAR</a></div>
+    <div class="logo"><a href="index1.php" style="text-decoration: none; color: inherit;">UCAR</a></div>
     <nav>
       <a href="gucsan.php">내차팔기</a>
       <a href="buycar.php">내차사기</a>

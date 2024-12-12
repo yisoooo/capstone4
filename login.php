@@ -66,7 +66,6 @@
       cursor: pointer;
     }
 
-
     .link {
       text-align: center;
       margin-top: 15px;
@@ -88,7 +87,7 @@
     <h2>UCAR 로그인</h2>
 
     <!-- 로그인 폼 -->
-    <form action="index1.php" method="post">
+    <form action="login3.php" method="post">
       <!-- 아이디 입력 -->
       <div class="input-group">
         <label for="username">아이디</label>
