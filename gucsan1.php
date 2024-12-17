@@ -1,3 +1,61 @@
+<?php
+// DB 연결
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "ucar";
+
+// 데이터베이스 연결
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// 연결 확인
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// 폼 제출 시 처리
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 폼 데이터 가져오기
+    $car_number = $_POST['car-number'];
+    $car_name = $_POST['car-name'];
+    $distance = $_POST['distance'];
+    $applicant_name = $_POST['applicant-name'];
+    $phone_number = $_POST['phone-number'];
+    $region = $_POST['region'];
+    
+    // 체크박스 값 처리
+    $parking = isset($_POST['parking']) ? 1 : 0;
+    $transaction_location = isset($_POST['transaction-location']) ? 1 : 0;
+    $within_30m = isset($_POST['within-30m']) ? 1 : 0;
+    
+    $age_check = isset($_POST['age-check']) ? 1 : 0;
+    $terms_check = isset($_POST['terms-check']) ? 1 : 0;
+
+    // DB에 데이터 삽입
+    $sql = "INSERT INTO car_sale_requests (car_number, car_name, distance, applicant_name, phone_number, region, parking, transaction_location, within_30m, age_check, terms_check)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssssssss", $car_number, $car_name, $distance, $applicant_name, $phone_number, $region, $parking, $transaction_location, $within_30m, $age_check, $terms_check);
+    
+    // 쿼리 실행
+    if ($stmt->execute()) {
+        // 성공 시 alert 메시지 표시 후 index1.php로 이동
+        echo "<script>
+                alert('신청이 완료되었습니다!');
+                window.location.href = 'index1.php';
+              </script>";
+    } else {
+        echo "<script>
+                alert('오류가 발생했습니다. 다시 시도해주세요.');
+              </script>";
+    }
+
+    // 연결 종료
+    $stmt->close();
+    $conn->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,12 +64,12 @@
   <title>내차팔기 신청하기</title>
   <style>
     body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* 화면 전체를 사용 */
-}
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
 
     header {
       display: flex;
@@ -91,34 +149,34 @@
     }
 
     footer {
-  background-color: #f9f9f9;
-  padding: 20px;
-  text-align: center;
-  font-size: 14px;
-  color: #777;
-  border-top: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
-}
+      background-color: #f9f9f9;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      border-top: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: auto;
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="logo">Ucar</div>
     <nav>
-            <a href="gucsan.php">내차팔기</a>
-            <a href="buycar.php">내차사기</a>
-            <a href="rentcar.php">렌트</a>
-            <a href="finance.php">금융</a>
-            <a href="media.php">미디어</a>
+      <a href="gucsan.php">내차팔기</a>
+      <a href="buycar.php">내차사기</a>
+      <a href="rentcar.php">렌트</a>
+      <a href="finance.php">금융</a>
+      <a href="media.php">미디어</a>
     </nav>
   </header>
 
   <div class="main-content">
     <h1>내차팔기 신청하기</h1>
     <div class="form-container">
-      <form action="#">
+      <form method="POST" action="">
         <label for="car-number">차량번호</label>
         <input type="text" id="car-number" name="car-number" placeholder="예) 123가 1234" required>
 
@@ -140,13 +198,32 @@
           <option value="seoul">서울</option>
           <option value="busan">부산</option>
           <option value="daegu">대구</option>
-          <!-- 더 많은 옵션 추가 가능 -->
+          <option value="incheon">인천</option>
+          <option value="gwangju">광주</option>
+          <option value="daejeon">대전</option>
+          <option value="ulsan">울산</option>
+          <option value="sejong">세종</option>
+          <option value="gyeonggi">경기도</option>
+          <option value="gangwon">강원도</option>
+          <option value="chungbuk">충청북도</option>
+          <option value="chungnam">충청남도</option>
+          <option value="jeonbuk">전라북도</option>
+          <option value="jeonnam">전라남도</option>
+          <option value="gyeongbuk">경상북도</option>
+          <option value="gyeongnam">경상남도</option>
+          <option value="jeju">제주특별자치도</option>
         </select>
 
-        <div class="small-group">
-          <button type="button">주차</button>
-          <button type="button">거래 위치</button>
-          <button type="button">30미터 이내</button>
+        <div class="checkbox">
+          <label>옵션:</label>
+          <input type="checkbox" id="parking" name="parking">
+          <label for="parking">주차</label>
+
+          <input type="checkbox" id="transaction-location" name="transaction-location">
+          <label for="transaction-location">거래 위치</label>
+
+          <input type="checkbox" id="within-30m" name="within-30m">
+          <label for="within-30m">30미터 이내</label>
         </div>
 
         <div class="checkbox">
