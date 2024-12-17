@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt->execute()) {
             $_SESSION['username'] = $username;
-            header("Location: login.php"); // 회원가입 성공 시 리다이렉트
+            header("Location: signup2.php"); // 회원가입 성공 시 signup2.php로 리다이렉트
             exit();
         } else {
             $error_message = "회원가입에 실패했습니다.";
@@ -35,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->close();
+    $conn->close();
 }
 ?>
 
