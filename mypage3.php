@@ -1,3 +1,26 @@
+<?php
+session_start();
+require_once("db.php");
+
+// 로그인 상태 체크
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php"); // 로그인되어 있지 않으면 로그인 페이지로 리다이렉트
+    exit();
+}
+
+// 세션에서 사용자명 가져오기
+$username = $_SESSION['username'];
+
+// 사용자 정보 가져오기
+$sql = "SELECT name, email FROM members WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,17 +29,17 @@
     <title>마이페이지 - 판매중 차량</title>
     <style>
         body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* 화면 전체를 사용 */
-}
-.logo {
-      font-size: 40px;
-      font-weight: bold;
-      color: #ffffff;
-    }
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 화면 전체를 사용 */
+        }
+        .logo {
+            font-size: 40px;
+            font-weight: bold;
+            color: #ffffff;
+        }
         header {
             background-color: #333;
             color: #fff;
@@ -26,7 +49,7 @@
             align-items: center;
         }
         header a {
-            color: #ffffffc4; 
+            color: #ffffffc4;
             text-decoration: none;
             margin: 0 10px;
         }
@@ -115,7 +138,7 @@
             margin: 5px 0;
         }
         .favorite-cars ul li a {
-            color: #00bfffc4; /* 시그니처 색상 */
+            color: #00bfffc4;
             text-decoration: none;
             font-weight: bold;
         }
@@ -142,16 +165,16 @@
             text-decoration: underline;
         }
         footer {
-  background-color: #f9f9f9;
-  padding: 20px;
-  text-align: center;
-  font-size: 14px;
-  color: #777;
-  border-top: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
-}
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
+        }
         footer div {
             margin: 5px 0;
         }
@@ -166,6 +189,14 @@
             margin: 0 10px;
         }
         .login-section a:hover {
+            text-decoration: underline;
+        }
+        .edit-profile-link {
+            text-decoration: none;
+            color: #00bfffc4; /* 시그니처 색상 */
+            font-weight: bold;
+        }
+        .edit-profile-link:hover {
             text-decoration: underline;
         }
     </style>
@@ -186,10 +217,10 @@
     <div class="profile-section">
         <div class="user-info">
             <img src="https://via.placeholder.com/40" alt="프로필 이미지">
-            <span>신이수</span>
+            <span><?php echo htmlspecialchars($user['name']); ?></span>
         </div>
         <div>
-            목록 (최근 3개월 기준)
+            <a href="edit_profile.php" class="edit-profile-link">회원정보 수정</a>
         </div>
     </div>
 
@@ -217,7 +248,7 @@
         </div>
     </div>
 
-    <!-- 최근 판매중 섹션 -->
+    <!-- 판매중 차량 섹션 -->
     <div class="favorite-cars">
         <h2>판매중 차량</h2>
         <ul>
@@ -268,11 +299,11 @@
 <!-- 푸터 -->
 <footer>
     <div>CUSTOMER CENTER: TEL 000-0000-0000</div>
-  <div>BANK ACCOUNT: 0000000000</div>
-  <div>RETURN/EXCHANGE: 서울특별시 강남구 테헤란로 000</div>
-  <div>유카 (UCAR) TEL. 000 0000 0000 OWNER. NNN</div>
-  <div>COPYRIGHT © 유카 주식회사. ALL RIGHTS RESERVED.</div>
-  </footer>
+    <div>BANK ACCOUNT: 0000000000</div>
+    <div>RETURN/EXCHANGE: 서울특별시 강남구 테헤란로 000</div>
+    <div>유카 (UCAR) TEL. 000 0000 0000 OWNER. NNN</div>
+    <div>COPYRIGHT © 유카 주식회사. ALL RIGHTS RESERVED.</div>
+</footer>
 
 </body>
 </html>

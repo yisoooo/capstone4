@@ -1,3 +1,26 @@
+<?php
+session_start();
+require_once("db.php");
+
+// 로그인 상태 체크
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php"); // 로그인되어 있지 않으면 로그인 페이지로 리다이렉트
+    exit();
+}
+
+// 세션에서 사용자명 가져오기
+$username = $_SESSION['username'];
+
+// 사용자 정보 가져오기
+$sql = "SELECT name, email FROM members WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,17 +29,17 @@
     <title>마이페이지 - 찜한 차량</title>
     <style>
         body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* 화면 전체를 사용 */
-}
-.logo {
-      font-size: 40px;
-      font-weight: bold;
-      color: #ffffff;
-    }
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 화면 전체를 사용 */
+        }
+        .logo {
+            font-size: 40px;
+            font-weight: bold;
+            color: #ffffff;
+        }
         header {
             background-color: #333;
             color: #fff;
@@ -43,7 +66,7 @@
         .profile-section {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: space-between; /* 왼쪽과 오른쪽 요소를 배치 */
             padding: 10px 0;
             border-bottom: 1px solid #ddd;
         }
@@ -59,6 +82,17 @@
         .profile-section .user-info span {
             margin-left: 10px;
             font-size: 18px;
+        }
+        .profile-section .edit-profile {
+            margin-left: auto; /* 오른쪽으로 정렬 */
+            text-align: right;
+        }
+        .profile-section .edit-profile a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .profile-section .edit-profile a:hover {
+            text-decoration: underline;
         }
         .stats {
             display: flex;
@@ -142,16 +176,16 @@
             text-decoration: underline;
         }
         footer {
-  background-color: #f9f9f9;
-  padding: 20px;
-  text-align: center;
-  font-size: 14px;
-  color: #777;
-  border-top: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
-}
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
+        }
         footer div {
             margin: 5px 0;
         }
@@ -186,10 +220,10 @@
     <div class="profile-section">
         <div class="user-info">
             <img src="https://via.placeholder.com/40" alt="프로필 이미지">
-            <span>신이수</span>
+            <span><?php echo htmlspecialchars($user['name']); ?></span> <!-- 이름 동적으로 표시 -->
         </div>
-        <div>
-            목록 (최근 3개월 기준)
+        <div class="edit-profile">
+            <a href="edit_profile.php">회원정보 수정</a> <!-- 회원정보 수정 링크 -->
         </div>
     </div>
 
@@ -197,23 +231,23 @@
     <div class="stats">
         <div>
             <h3>6</h3>
-            <a href="mypage1.php"">찜한 차량</a>
+            <a href="mypage1.php">찜한 차량</a>
         </div>
         <div>
             <h3>21</h3>
-            <a href="mypage2.php"">최근 본 차량</a>
+            <a href="mypage2.php">최근 본 차량</a>
         </div>
         <div>
             <h3>0</h3>
-            <a href="mypage3.php"">판매중 차량</a>
+            <a href="mypage3.php">판매중 차량</a>
         </div>
         <div>
             <h3>0</h3>
-            <a href="mypage4.php"">판매된 차량</a>
+            <a href="mypage4.php">판매된 차량</a>
         </div>
         <div>
             <h3>0</h3>
-            <a href="mypage5.php"">구매문의 차량</a>
+            <a href="mypage5.php">구매문의 차량</a>
         </div>
     </div>
 
@@ -268,11 +302,11 @@
 <!-- 푸터 -->
 <footer>
     <div>CUSTOMER CENTER: TEL 000-0000-0000</div>
-  <div>BANK ACCOUNT: 0000000000</div>
-  <div>RETURN/EXCHANGE: 서울특별시 강남구 테헤란로 000</div>
-  <div>유카 (UCAR) TEL. 000 0000 0000 OWNER. NNN</div>
-  <div>COPYRIGHT © 유카 주식회사. ALL RIGHTS RESERVED.</div>
-  </footer>
+    <div>BANK ACCOUNT: 0000000000</div>
+    <div>RETURN/EXCHANGE: 서울특별시 강남구 테헤란로 000</div>
+    <div>유카 (UCAR) TEL. 000 0000 0000 OWNER. NNN</div>
+    <div>COPYRIGHT © 유카 주식회사. ALL RIGHTS RESERVED.</div>
+</footer>
 
 </body>
 </html>

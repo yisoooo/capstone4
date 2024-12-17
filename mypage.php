@@ -1,3 +1,27 @@
+<?php
+session_start();
+require_once("db.php");
+
+// 로그인 상태 체크
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php"); // 로그인되어 있지 않으면 로그인 페이지로 리다이렉트
+    exit();
+}
+
+// 세션에서 사용자명 가져오기
+$username = $_SESSION['username'];
+
+// 사용자 정보 가져오기
+$sql = "SELECT name FROM members WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$user_name = $user['name'];
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,18 +30,17 @@
     <title>마이페이지</title>
     <style>
         body {
-            
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* 화면 전체를 사용 */
-}
-.logo {
-      font-size: 40px;
-      font-weight: bold;
-      color: #ffffff;
-    }
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 화면 전체를 사용 */
+        }
+        .logo {
+            font-size: 40px;
+            font-weight: bold;
+            color: #ffffff;
+        }
         header {
             background-color: #333;
             color: #fff;
@@ -61,6 +84,14 @@
             margin-left: 10px;
             font-size: 18px;
         }
+        .profile-section .user-info a {
+            margin-left: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .profile-section .user-info a:hover {
+            text-decoration: underline;
+        }
         .stats {
             display: flex;
             justify-content: space-around;
@@ -99,20 +130,19 @@
             text-decoration: underline;
         }
         footer {
-  background-color: #f9f9f9;
-  padding: 20px;
-  text-align: center;
-  font-size: 14px;
-  color: #777;
-  border-top: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
-}
-    footer div{
-        margin: 5px 0;
-    }
-
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto; /* footer가 항상 맨 아래에 위치하도록 설정 */
+        }
+        footer div {
+            margin: 5px 0;
+        }
         .login-section {
             text-align: center;
             margin: 20px 0;
@@ -143,7 +173,8 @@
     <div class="profile-section">
         <div class="user-info">
             <img src="https://via.placeholder.com/40" alt="프로필 이미지">
-            <span>신이수</span>
+            <span><?php echo $user_name; ?></span>
+            <a href="edit_profile.php">회원정보 수정</a> <!-- 회원정보 수정 링크 추가 -->
         </div>
         <div>
             목록 (최근 3개월 기준)
@@ -193,14 +224,13 @@
 </div>
 
 <!-- 푸터 -->
-
 <footer>
     <div>CUSTOMER CENTER: TEL 000-0000-0000</div>
-  <div>BANK ACCOUNT: 0000000000</div>
-  <div>RETURN/EXCHANGE: 서울특별시 강남구 테헤란로 000</div>
-  <div>유카 (UCAR) TEL. 000 0000 0000 OWNER. NNN</div>
-  <div>COPYRIGHT © 유카 주식회사. ALL RIGHTS RESERVED.</div>
-  </footer>
+    <div>BANK ACCOUNT: 0000000000</div>
+    <div>RETURN/EXCHANGE: 서울특별시 강남구 테헤란로 000</div>
+    <div>유카 (UCAR) TEL. 000 0000 0000 OWNER. NNN</div>
+    <div>COPYRIGHT © 유카 주식회사. ALL RIGHTS RESERVED.</div>
+</footer>
 
 </body>
 </html>
